@@ -14,7 +14,7 @@ export default function UserStatus() {
     // Update users when awareness changes
     const handleUpdate = () => {
       const states = awareness.getStates();
-      console.log('Awareness states:', states);
+      console.log('UserStatus awareness states:', states);
       const connectedUsers = Array.from(states.entries()).map(([clientId, state]) => ({
         id: clientId.toString(),
         name: state.user?.name || 'Anonymous',

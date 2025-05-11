@@ -6,20 +6,10 @@ import Collaboration from '@tiptap/extension-collaboration';
 import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
 import { useEffect } from 'react';
 import { useUserStore } from '@/store/useUserStore';
-import { yDoc, setupBroadcastSync, getWebrtcProvider, destroyYjs } from '@/lib/yjs';
+import { yDoc, getWebrtcProvider, destroyYjs } from '@/lib/yjs';
 
 export default function Editor() {
   const { user } = useUserStore();
-
-  // Initialize BroadcastChannel sync
-  useEffect(() => {
-    setupBroadcastSync();
-    const provider = getWebrtcProvider();
-    console.log('Editor initialized with user:', user);
-    return () => {
-      destroyYjs(); // Cleanup on unmount
-    };
-  }, []);
 
   const editor = useEditor({
     extensions: [
@@ -54,8 +44,18 @@ export default function Editor() {
         name: user.name,
         color: user.color,
       });
-      console.log('Awareness updated for user:', user);
+      console.log('Editor initialized with user:', user);
+      // Log awareness changes
+      provider.awareness.on('change', () => {
+        console.log('Awareness states:', provider.awareness.getStates());
+      });
     }
+    return () => {
+      if (editor) {
+        editor.destroy();
+      }
+      destroyYjs(); // Cleanup on unmount
+    };
   }, [editor, user]);
 
   if (!editor || !user?.name) return null;
